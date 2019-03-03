@@ -29,7 +29,6 @@
         request.send(null);
 
         if (request.status === 200) {
-            console.log(request.responseText);
             window.gon.data = JSON.parse(request.responseText);
         }
         window.gon.data.lastEditEnv=settings.Environment;
@@ -38,12 +37,6 @@
     document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
 
     function init() {
-        //   let headline = document.getElementsByClassName('user-headline')[0];
-        //   let envDiv = document.createElement('div');
-        //   envDiv.id = 'user-environment';
-        //   headline.appendChild(envDiv);
-        //   let label = document.createElement('span');
-        //   label.innerHTML = 'Environment: ';
 
         let highlight = document.createElement('div');
         highlight.className="highlight";
@@ -85,20 +78,15 @@
         }
 
         frag.appendChild(select);
-        //envDiv.appendChild(label);
-        //envDiv.appendChild(frag);
         document.getElementsByClassName('user-stats')[0].prepend(highlight);
         userStatsValue.appendChild(frag);
 
-
-
         document.querySelector('select[name="environmentSelect"]').onchange=envChanged;
-
-
     }
 
     function DOM_ContentReady () {
         setTimeout(function() {
+            // Test to see if Waze Editor Profile Enhancements is installed, if so give it time to populate forum post info
             if (document.getElementById('ruler') == null) {
                 console.log('la');
                 bootstrap();
@@ -178,7 +166,6 @@
                 settings[prop] = defaultSettings[prop];
         }
     }
-
 
 })();
 
