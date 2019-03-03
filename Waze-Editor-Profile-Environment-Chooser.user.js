@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Waze Editor Profile Environment Chooser
 // @namespace    https://greasyfork.org/users/32336-joyriding
-// @version      2019.03.03.01
+// @version      2019.03.03.02
 // @description  Allows switching between editing environments when viewing a user profile
 // @author       Joyriding
 // @include      https://www.waze.com/*user/editor*
@@ -37,7 +37,6 @@
     document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
 
     function init() {
-
         let highlight = document.createElement('div');
         highlight.className="highlight";
         let highlightTitle = document.createElement('div');
@@ -57,8 +56,6 @@
 
         highlightTitleText.innerHTML = 'Environments';
         userStatsValue.setAttribute('style','margin-top: -10px;font-size: 17px;');
-
-
 
         let frag = document.createDocumentFragment(),
             select = document.createElement("select");
