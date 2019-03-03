@@ -1,31 +1,31 @@
 // ==UserScript==
-// @name         Editor Profile Environment Chooser
+// @name         Waze Editor Profile Environment Chooser
 // @namespace    https://greasyfork.org/users/32336-joyriding
 // @version      2019.03.03.00
 // @description  Allows switching between editing environments when viewing a user profile
 // @author       Joyriding
 // @include      https://www.waze.com/*user/editor*
 // @include      https://beta.waze.com/*user/editor*
-// @require      http://code.jquery.com/jquery-1.9.1.min.js
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
 
+/* global W */
 
-
-
-(async function() {
+(function() {
     'use strict';
-
 
     var settings = {};
     loadSettings();
+    let lastEditEnv = window.gon.data.lastEditEnv;
 
-    if (typeof settings.Environment != 'undefined' && settings.Environment != 'default') {
+    if (typeof settings.Environment != 'undefined'
+        && settings.Environment != 'default'
+        && settings.Environment != window.gon.data.lastEditEnv) {
         let apiUrl = getApiUrlUserProfile(window.gon.data.username, settings.Environment);
 
         var request = new XMLHttpRequest();
-        request.open('GET', apiUrl, false); // `false` makes the request synchronous
+        request.open('GET', apiUrl, false); // 'false' makes the request synchronous
         request.send(null);
 
         if (request.status === 200) {
@@ -40,34 +40,71 @@
         document.querySelector('select[name="environmentSelect"]').onchange=envChanged;
     },false);
 
-    function DOM_ContentReady () {
+    function init() {
+     //   let headline = document.getElementsByClassName('user-headline')[0];
+     //   let envDiv = document.createElement('div');
+     //   envDiv.id = 'user-environment';
+     //   headline.appendChild(envDiv);
+     //   let label = document.createElement('span');
+     //   label.innerHTML = 'Environment: ';
 
-        let headline = document.getElementsByClassName('user-headline')[0];
-        let envDiv = document.createElement('div');
-        envDiv.id = 'user-environment';
-        headline.appendChild(envDiv);
-        let label = document.createElement('span');
-        label.innerHTML = 'Environment: ';
+        let highlight = document.createElement('div');
+        highlight.className="highlight";
+        let highlightTitle = document.createElement('div');
+        highlightTitle.className="highlight-title";
+        let highlightTitleIcon = document.createElement('div');
+        highlightTitleIcon.className="highlight-title-icon posts";
+        let highlightTitleText = document.createElement('div');
+        highlightTitleText.className="highlight-title-text";
+        let userStatsValue = document.createElement('div');
+        userStatsValue.className="user-stats-value";
+
+        highlightTitle.appendChild(highlightTitleIcon);
+        highlightTitle.appendChild(highlightTitleText);
+        highlight.appendChild(highlightTitle);
+        highlight.appendChild(userStatsValue);
+
+        highlightTitleText.innerHTML = 'Environments';
+        userStatsValue.setAttribute('style','margin-top:7px;font-size:20px');
+
+
 
         let frag = document.createDocumentFragment(),
             select = document.createElement("select");
         select.id = 'environmentSelect';
         select.name = 'environmentSelect';
 
-        select.options.add( new Option("default","default", true, true) );
-        select.options.add( new Option("na","na") );
-        select.options.add( new Option("row","row") );
-        select.options.add( new Option("il","il") );
+        select.options.add( new Option("Last Edit (" + lastEditEnv.toUpperCase() + ")","default", true, true) );
+        select.options.add( new Option("NA","na") );
+        select.options.add( new Option("ROW","row") );
+        select.options.add( new Option("IL","il") );
 
         for (var i = 0; i < select.options.length; i++) {
-            if (select.options[i].text== settings.Environment) {
+            if (select.options[i].value == settings.Environment) {
                 select.options[i].selected = true;
             }
         }
 
         frag.appendChild(select);
-        envDiv.appendChild(label);
-        envDiv.appendChild(frag);
+        //envDiv.appendChild(label);
+        //envDiv.appendChild(frag);
+        document.getElementsByClassName('user-stats')[0].prepend(highlight);
+        userStatsValue.appendChild(frag);
+
+
+    }
+
+    function DOM_ContentReady () {
+        bootstrap();
+    }
+
+    function bootstrap(tries) {
+        tries = tries || 1;
+
+        if (W && W.EditorProfile ) {
+            init();
+        } else if (tries < 1000)
+            setTimeout(function () {bootstrap(tries++);}, 200);
     }
 
     function getApiUrlUserProfile(username, env) {
@@ -83,7 +120,6 @@
         settings.Environment = e.target.value;
         saveSettings();
         location.reload();
-
     }
 
     function saveSettings() {
@@ -108,11 +144,6 @@
         }
     }
 
-    async function wait(ms) {
-        return new Promise(resolve => {
-            setTimeout(resolve, ms);
-        });
-    }
 
 })();
 
