@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Waze Editor Profile Environment Chooser
 // @namespace    https://greasyfork.org/users/32336-joyriding
-// @version      2019.03.03.00
+// @version      2019.03.03.01
 // @description  Allows switching between editing environments when viewing a user profile
 // @author       Joyriding
 // @include      https://www.waze.com/*user/editor*
@@ -25,7 +25,7 @@
         let apiUrl = getApiUrlUserProfile(window.gon.data.username, settings.Environment);
 
         var request = new XMLHttpRequest();
-        request.open('GET', apiUrl, false); // 'false' makes the request synchronous
+        request.open('GET', apiUrl, true); // 'false' makes the request synchronous
         request.send(null);
 
         if (request.status === 200) {
@@ -36,24 +36,22 @@
     }
 
     document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
-    document.addEventListener('DOMContentLoaded',function() {
-        document.querySelector('select[name="environmentSelect"]').onchange=envChanged;
-    },false);
 
     function init() {
-     //   let headline = document.getElementsByClassName('user-headline')[0];
-     //   let envDiv = document.createElement('div');
-     //   envDiv.id = 'user-environment';
-     //   headline.appendChild(envDiv);
-     //   let label = document.createElement('span');
-     //   label.innerHTML = 'Environment: ';
+        //   let headline = document.getElementsByClassName('user-headline')[0];
+        //   let envDiv = document.createElement('div');
+        //   envDiv.id = 'user-environment';
+        //   headline.appendChild(envDiv);
+        //   let label = document.createElement('span');
+        //   label.innerHTML = 'Environment: ';
 
         let highlight = document.createElement('div');
         highlight.className="highlight";
         let highlightTitle = document.createElement('div');
         highlightTitle.className="highlight-title";
         let highlightTitleIcon = document.createElement('div');
-        highlightTitleIcon.className="highlight-title-icon posts";
+        //highlightTitleIcon.className="highlight-title-icon posts";
+        highlightTitleIcon.setAttribute('style',getIconStyle());
         let highlightTitleText = document.createElement('div');
         highlightTitleText.className="highlight-title-text";
         let userStatsValue = document.createElement('div');
@@ -65,7 +63,7 @@
         highlight.appendChild(userStatsValue);
 
         highlightTitleText.innerHTML = 'Environments';
-        userStatsValue.setAttribute('style','margin-top:7px;font-size:20px');
+        userStatsValue.setAttribute('style','margin-top: -10px;font-size: 17px;');
 
 
 
@@ -73,6 +71,7 @@
             select = document.createElement("select");
         select.id = 'environmentSelect';
         select.name = 'environmentSelect';
+        select.setAttribute('style','position:relative;box-shadow: 0 0 2px #57889C;background: white;font-family: sans-serif;display: inherit;top: -11px;border: 0px;outline: 0px;color: #59899e;');
 
         select.options.add( new Option("Last Edit (" + lastEditEnv.toUpperCase() + ")","default", true, true) );
         select.options.add( new Option("NA","na") );
@@ -92,10 +91,22 @@
         userStatsValue.appendChild(frag);
 
 
+
+        document.querySelector('select[name="environmentSelect"]').onchange=envChanged;
+
+
     }
 
     function DOM_ContentReady () {
-        bootstrap();
+        setTimeout(function() {
+            if (document.getElementById('ruler') == null) {
+                console.log('la');
+                bootstrap();
+            } else {
+                console.log('lala');
+                setTimeout(function() {bootstrap();},1800);
+            }
+            ;},200);
     }
 
     function bootstrap(tries) {
@@ -114,6 +125,30 @@
             apiEnv = env + '-';
         }
         return `https://${window.location.host}/${apiEnv}Descartes/app/UserProfile/Profile?username=${username}`;
+    }
+
+    function getIconStyle() {
+        let $tempDiv = null;
+        let tempQuerySelector = null;
+        let tempComputedStyle = null;
+
+        tempQuerySelector = document.querySelector('#edits-by-type .venue-icon');
+        tempComputedStyle = window.getComputedStyle(tempQuerySelector);
+        let iconStyle =
+            `background-image:${tempComputedStyle.getPropertyValue('background-image')};`
+        + `background-size:${tempComputedStyle.getPropertyValue('background-size')};`
+        + `background-position:${tempComputedStyle.getPropertyValue('background-position')};`
+        + `width:${tempComputedStyle.getPropertyValue('width')};`
+        + `height:${tempComputedStyle.getPropertyValue('height')};`
+        + `transform: scale(0.5);`
+        + `display: inline-block;`
+        + `float: left;`
+        + `position: relative;`
+        + `top: -10px;`
+        + `left: -9px;`
+        + `margin-right: -18px;`
+        + `filter: invert(10%) sepia(39%) saturate(405%) hue-rotate(152deg) brightness(99%) contrast(86%);`;
+        return iconStyle;
     }
 
     function envChanged(e) {
