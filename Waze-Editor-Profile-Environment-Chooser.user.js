@@ -6,27 +6,42 @@
 // @author       Joyriding
 // @include      https://www.waze.com/*user/editor*
 // @include      https://beta.waze.com/*user/editor*
+// @require      http://code.jquery.com/jquery-1.9.1.min.js
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
 
-(function() {
+
+
+
+(async function() {
     'use strict';
+
 
     var settings = {};
     loadSettings();
 
     if (typeof settings.Environment != 'undefined' && settings.Environment != 'default') {
+        let apiUrl = getApiUrlUserProfile(window.gon.data.username, settings.Environment);
+
+        var request = new XMLHttpRequest();
+        request.open('GET', apiUrl, false); // `false` makes the request synchronous
+        request.send(null);
+
+        if (request.status === 200) {
+            console.log(request.responseText);
+            window.gon.data = JSON.parse(request.responseText);
+        }
         window.gon.data.lastEditEnv=settings.Environment;
     }
 
     document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
-
     document.addEventListener('DOMContentLoaded',function() {
         document.querySelector('select[name="environmentSelect"]').onchange=envChanged;
     },false);
 
     function DOM_ContentReady () {
+
         let headline = document.getElementsByClassName('user-headline')[0];
         let envDiv = document.createElement('div');
         envDiv.id = 'user-environment';
@@ -53,6 +68,15 @@
         frag.appendChild(select);
         envDiv.appendChild(label);
         envDiv.appendChild(frag);
+    }
+
+    function getApiUrlUserProfile(username, env) {
+        let apiEnv = '';
+        if (env != 'na')
+        {
+            apiEnv = env + '-';
+        }
+        return `https://${window.location.host}/${apiEnv}Descartes/app/UserProfile/Profile?username=${username}`;
     }
 
     function envChanged(e) {
@@ -82,6 +106,12 @@
             if (!settings.hasOwnProperty(prop))
                 settings[prop] = defaultSettings[prop];
         }
+    }
+
+    async function wait(ms) {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms);
+        });
     }
 
 })();
