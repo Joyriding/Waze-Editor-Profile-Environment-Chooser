@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Waze Editor Profile Environment Chooser
 // @namespace    https://greasyfork.org/users/32336-joyriding
-// @version      2019.03.03.03
+// @version      2019.03.04.00
 // @description  Allows switching between editing environments when viewing a user profile
 // @author       Joyriding
 // @include      https://www.waze.com/*user/editor*
@@ -24,6 +24,8 @@
         && settings.Environment != window.gon.data.lastEditEnv) {
         let apiUrl = getApiUrlUserProfile(window.gon.data.username, settings.Environment);
 
+        // synchornous XMLHttpRequest required as we need to pause execution to replace window.gon object
+        // The deprication warning in console is expected.
         var request = new XMLHttpRequest();
         request.open('GET', apiUrl, false); // 'false' makes the request synchronous
         request.send(null);
@@ -78,7 +80,7 @@
         document.getElementsByClassName('user-stats')[0].prepend(highlight);
         userStatsValue.appendChild(frag);
 
-        document.querySelector('select[name="environmentSelect"]').onchange=envChanged;
+        document.querySelector('select[name="environmentSelect"]').onchange = envChanged;
     }
 
     function DOM_ContentReady () {
@@ -111,12 +113,8 @@
     }
 
     function getIconStyle() {
-        let $tempDiv = null;
-        let tempQuerySelector = null;
-        let tempComputedStyle = null;
-
-        tempQuerySelector = document.querySelector('#edits-by-type .venue-icon');
-        tempComputedStyle = window.getComputedStyle(tempQuerySelector);
+        let tempQuerySelector = document.querySelector('#edits-by-type .venue-icon');
+        let tempComputedStyle = window.getComputedStyle(tempQuerySelector);
         let iconStyle =
             `background-image:${tempComputedStyle.getPropertyValue('background-image')};`
         + `background-size:${tempComputedStyle.getPropertyValue('background-size')};`
