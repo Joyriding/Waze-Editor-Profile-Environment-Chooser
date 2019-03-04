@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Waze Editor Profile Environment Chooser
 // @namespace    https://greasyfork.org/users/32336-joyriding
-// @version      2019.03.03.02
+// @version      2019.03.03.03
 // @description  Allows switching between editing environments when viewing a user profile
 // @author       Joyriding
 // @include      https://www.waze.com/*user/editor*
@@ -25,13 +25,13 @@
         let apiUrl = getApiUrlUserProfile(window.gon.data.username, settings.Environment);
 
         var request = new XMLHttpRequest();
-        request.open('GET', apiUrl, true); // 'false' makes the request synchronous
+        request.open('GET', apiUrl, false); // 'false' makes the request synchronous
         request.send(null);
 
         if (request.status === 200) {
             window.gon.data = JSON.parse(request.responseText);
         }
-        window.gon.data.lastEditEnv=settings.Environment;
+        window.gon.data.lastEditEnv = settings.Environment;
     }
 
     document.addEventListener ("DOMContentLoaded", DOM_ContentReady);
@@ -85,10 +85,8 @@
         setTimeout(function() {
             // Test to see if Waze Editor Profile Enhancements is installed, if so give it time to populate forum post info
             if (document.getElementById('ruler') == null) {
-                console.log('la');
                 bootstrap();
             } else {
-                console.log('lala');
                 setTimeout(function() {bootstrap();},1800);
             }
             ;},200);
